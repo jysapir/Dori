@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAVEN — Nontoxic Living Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f5f0e8; font-family: 'DM Sans', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: #2c2a24; }
+  .wrap { width: 100%; max-width: 720px; display: flex; flex-direction: column; min-height: 100vh; padding: 0 16px; }
+  .header { text-align: center; padding: 28px 0 16px; position: sticky; top: 0; z-index: 10; background: linear-gradient(to bottom, #f5f0e8 88%, transparent); }
+  .logo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 38px; font-weight: 600; letter-spacing: 0.06em; color: #2c2a24; line-height: 1; }
+  .tagline { font-size: 11px; color: #7a7568; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 6px; font-weight: 300; }
+  .divider { width: 60px; height: 1px; background: linear-gradient(to right, transparent, #8aab74, transparent); margin: 12px auto 0; }
+  #welcome { padding: 24px 8px 16px; display: flex; flex-direction: column; flex: 1; }
+  .intro { text-align: center; color: #7a7568; font-size: 15px; line-height: 1.7; max-width: 460px; margin: 0 auto 32px; font-weight: 300; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 36px; }
+  .chip { background: #eee8d8; border: 1px solid #e0d8c8; border-radius: 100px; padding: 9px 16px; font-size: 13px; color: #2c2a24; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 400; transition: all 0.15s ease; }
+  .chip:hover { background: #e0d8c3; transform: translateY(-1px); }
+  .tl-wrap { text-align: center; }
+  .tl-label { font-size: 11px; color: #7a7568; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+  .tl-names { font-size: 13px; color: #7a7568; font-weight: 300; }
+  #chat { display: none; flex: 1; padding: 20px 0 8px; flex-direction: column; }
+  .messages { display: flex; flex-direction: column; gap: 16px; }
+  .msg { display: flex; align-items: flex-start; gap: 10px; animation: fadeUp 0.3s ease; }
+  .msg.user { flex-direction: row-reverse; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: #5c7a4a; color: white; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; font-family: 'Cormorant Garamond', serif; font-weight: 600; }
+  .bubble { max-width: 78%; padding: 13px 17px; font-size: 14px; line-height: 1.7; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .bubble.ai { background: #fff; border: 1px solid #e0d8c8; border-radius: 18px 18px 18px 4px; color: #2c2a24; }
+  .bubble.user { background: #3d5c2e; color: #f5f0e8; border-radius: 18px 18px 4px 18px; }
+  .bubble.ai strong { color: #2c2a24; }
+  .bubble.ai ul { padding-left: 18px; margin: 6px 0; }
+  .bubble.ai li { margin: 3px 0; }
+  .bubble.ai p { margin-bottom: 8px; }
+  .bubble.ai p:last-child { margin-bottom: 0; }
+  .typing { display: flex; align-items: center; gap: 5px; padding: 4px 0; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #8a9e7a; animation: bounce 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  .input-area { position: sticky; bottom: 0; padding: 12px 0 24px; background: linear-gradient(to top, #f5f0e8 80%, transparent); }
+  .mini-chips { display: none; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+  .mini-chips::-webkit-scrollbar { display: none; }
+  .mini-chip { background: #eee8d8; border: 1px solid #e0d8c8; border-radius: 100px; padding: 6px 13px; font-size: 12px; color: #2c2a24; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; flex-shrink: 0; transition: all 0.15s ease; }
+  .mini-chip:hover { background: #e0d8c3; }
+  .input-box { display: flex; gap: 10px; align-items: flex-end; background: #fffcf5; border: 1px solid #e0d8c8; border-radius: 16px; padding: 12px 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  textarea { flex: 1; border: none; background: transparent; font-size: 14px; color: #2c2a24; line-height: 1.6; font-family: 'DM Sans', sans-serif; font-weight: 300; resize: none; max-height: 120px; overflow: auto; outline: none; }
+  textarea::placeholder { color: #b0a898; }
+  .send-btn { width: 36px; height: 36px; border-radius: 10px; background: #5c7a4a; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s ease; }
+  .send-btn:hover { background: #8aab74; }
+  .send-btn:disabled { background: #e0d8c8; cursor: default; }
+  .disclaimer { text-align: center; font-size: 10px; color: #b0a898; margin-top: 8px; letter-spacing: 0.05em; }
+  @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-6px); opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">HAVEN</div>
+    <div class="tagline">Your Nontoxic Living Guide</div>
+    <div class="divider"></div>
+  </div>
+  <div id="welcome">
+    <p class="intro">Ask anything about reducing toxins, eating clean, optimizing your routines, or finding safer everyday products.</p>
+    <div class="chips" id="mainChips"></div>
+    <div class="tl-wrap">
+      <div class="tl-label">Informed by</div>
+      <div class="tl-names">Huberman · Saladino · Hyman · Bryan Johnson · Attia · Walker · Casey Means</div>
+    </div>
+  </div>
+  <div id="chat">
+    <div class="messages" id="messages"></div>
+    <div id="bottom" style="height:1px"></div>
+  </div>
+  <div class="input-area">
+    <div class="mini-chips" id="miniChips"></div>
+    <div class="input-box">
+      <textarea id="userInput" rows="1" placeholder="Ask about swaps, routines, ingredients, products…"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <div class="disclaimer">Not medical advice · Always consult a qualified practitioner for health decisions</div>
+  </div>
+</div>
+<script>
+const TOPICS = [
+  { label: "🍳 Cookware Swaps", prompt: "What cookware should I replace and what should I use instead? Give me priority order." },
+  { label: "💧 Water Quality", prompt: "How do I clean up my drinking water and reduce microplastic exposure at home?" },
+  { label: "🌅 Morning Routine", prompt: "What does an ideal morning routine look like for health and energy based on the latest science?" },
+  { label: "🌙 Cycle Syncing", prompt: "Explain cycle syncing — how should I adjust my workouts and lifestyle across my menstrual cycle?" },
+  { label: "🧹 Cleaning Products", prompt: "What household cleaning products are actually toxic and what should I replace them with?" },
+  { label: "🐕 Pet Food", prompt: "What should I look for and avoid in dog food? What are the best options?" },
+  { label: "💡 Lighting & Screens", prompt: "How does indoor lighting and screen use affect my health, and what can I do about it?" },
+  { label: "🥩 Eating Basics", prompt: "Give me the most important food swaps and principles for eating cleaner based on functional medicine." },
+  { label: "🧴 Personal Care", prompt: "How do I find safer personal care products? What ingredients should I always avoid?" },
+  { label: "😴 Sleep Optimization", prompt: "What are the most important evidence-based things I can do to dramatically improve my sleep?" },
+];
+
+let conversationHistory = [];
+let isLoading = false;
+
+['mainChips','miniChips'].forEach(id => {
+  const container = document.getElementById(id);
+  const topics = id === 'miniChips' ? TOPICS.slice(0,5) : TOPICS;
+  topics.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = id === 'miniChips' ? 'mini-chip' : 'chip';
+    btn.textContent = t.label;
+    btn.onclick = () => sendMessage(t.prompt);
+    container.appendChild(btn);
+  });
+});
+
+const textarea = document.getElementById('userInput');
+textarea.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+textarea.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+function formatText(text) {
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^#{1,3} (.+)$/gm, '<strong>$1</strong>')
+    .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</
